@@ -39,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
         tvName.setText(name);
         tvDescription.setText(description);
 
-        User user = dbHandler.getUser(name);
+        User user;
+        user = dbHandler.getUser(name);
 
         if (user.getFollowed()){
             btnFollow.setText("Unfollow");

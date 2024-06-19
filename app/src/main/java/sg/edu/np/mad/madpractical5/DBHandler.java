@@ -201,9 +201,6 @@ public class DBHandler extends SQLiteOpenHelper {
         cursor.close();
         return userList;
     }
-
-
-
 //  UPDATE user record
 
     public void updateUser(User user){
