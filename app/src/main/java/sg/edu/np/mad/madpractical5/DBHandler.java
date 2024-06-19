@@ -55,7 +55,7 @@ import java.util.List;
 public class DBHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "users";
+    private static final String DATABASE_NAME = "usersdb";
     private static final String TABLE_USER = "User";
 
     private static final String KEY_ID = "id";
@@ -84,11 +84,11 @@ public class DBHandler extends SQLiteOpenHelper {
                 + KEY_FOLLOWED + " INTEGER" + ")";
         db.execSQL(CREATE_USER_TABLE);
 
-        // Generate and insert 20 user data
+// Generate and insert 20 user data
         Random random = new Random();
         for (int i = 0; i < 20; i++) {
-            String name = "User" + i;
-            String description = "Description" + i;
+            String name = "Name" + String.format("%06d", random.nextInt(1000000)); // Generates a 6-digit number
+            String description = "Description " + String.format("%08d", random.nextInt(100000000)); // Generates an 8-digit number
             boolean followed = random.nextBoolean();
 
             ContentValues values = new ContentValues();

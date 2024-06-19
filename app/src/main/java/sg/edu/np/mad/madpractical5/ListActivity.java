@@ -19,9 +19,6 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-        // Create a list of users
-        List<User> userList = createRandomUsers(20);
-
         // Initialize the RecyclerView
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         UserAdapter adapter = new UserAdapter(getUsersFromDatabase(), this); // Pass context as second parameter
@@ -54,23 +51,6 @@ public class ListActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
-    }
-
-    private List<User> createRandomUsers(int count) {
-        List<User> userList = new ArrayList<>(); // Using ArrayList, which implements List
-        Random random = new Random();
-
-        for (int i = 0; i < count; i++) {
-            String name = "Name" + random.nextInt(1000000);
-            String description = "Description " + random.nextInt(1000000);
-            int id = random.nextInt(1000000);
-            boolean followed = random.nextBoolean();
-
-            User user = new User(name, description, id, followed);
-            userList.add(user);
-        }
-
-        return userList;
     }
 
     private List<User> getUsersFromDatabase() {
