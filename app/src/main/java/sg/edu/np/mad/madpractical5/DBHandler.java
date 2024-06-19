@@ -1,8 +1,10 @@
 package sg.edu.np.mad.madpractical5;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 
@@ -49,91 +51,174 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class DBHandler extends SQLiteOpenHelper {
-
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "usersdb";
-    private static final String TABLE_USER = "User";
 
-    private static final String KEY_ID = "id";
-    private static final String KEY_NAME = "name";
-    private static final String KEY_DESCRIPTION = "description";
-    private static final String KEY_FOLLOWED = "followed";
+    private static final String DATABASE_NAME = "myusers.db";
 
-    private static DBHandler instance;
-    private DBHandler(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    private static final String USERS = "users";
+
+    private static final String COLUMN_ID = "id";
+
+    private static final String COLUMN_NAME = "name";
+
+    private static final String COLUMN_DESC = "description";
+    private static final String COLUMN_FOLL = "followed";
+
+
+
+    public DBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version){
+
+        super(context, DATABASE_NAME, factory, DATABASE_VERSION);
+
     }
 
-    public static synchronized DBHandler getInstance(Context context) {
-        if (instance == null) {
-            instance = new DBHandler(context.getApplicationContext());
-        }
-        return instance;
-    }
+
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
-        String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
-                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + KEY_NAME + " TEXT,"
-                + KEY_DESCRIPTION + " TEXT,"
-                + KEY_FOLLOWED + " INTEGER" + ")";
-        db.execSQL(CREATE_USER_TABLE);
 
-// Generate and insert 20 user data
-        Random random = new Random();
-        for (int i = 0; i < 20; i++) {
-            String name = "Name" + String.format("%06d", random.nextInt(1000000)); // Generates a 6-digit number
-            String description = "Description " + String.format("%08d", random.nextInt(100000000)); // Generates an 8-digit number
-            boolean followed = random.nextBoolean();
+    public void onCreate(SQLiteDatabase db){
 
-            ContentValues values = new ContentValues();
-            values.put(KEY_NAME, name);
-            values.put(KEY_DESCRIPTION, description);
-            values.put(KEY_FOLLOWED, followed ? 1 : 0);
 
-            db.insert(TABLE_USER, null, values);
+
+        Log.i("Database Operations", "Creating a Table.");
+
+        try {
+
+            String CREATE_USERS_TABLE = "CREATE TABLE " + USERS + "(" + COLUMN_NAME + " TEXT," + COLUMN_DESC + " TEXT,"
+                    + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_FOLL + " TEXT" +")";
+
+            db.execSQL(CREATE_USERS_TABLE);
+
+
+            for (int i = 0; i<20; i++) {
+                Random r = new Random();
+                int name = r.nextInt(9999999);
+                int description = r.nextInt(9999999);
+                boolean followed = r.nextBoolean();
+                ContentValues values = new ContentValues();
+
+                values.put(COLUMN_NAME, "Name" + name);
+                values.put(COLUMN_DESC, "Description" + description);
+                values.put(COLUMN_FOLL, String.valueOf(followed));
+                db.insert(USERS, null, values);
+            }
+            Log.i("Database Operations", "Table created successfully.");
+
+        } catch (SQLiteException e) {
+
+            Log.i("Database Operations", "Error creating table", e);
+
         }
+
     }
 
+
+
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if exists and create tables again
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
+
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
+        db.execSQL("DROP TABLE IF EXISTS " + USERS);
         onCreate(db);
     }
 
-    public List<User> getUsers() {
-        List<User> userList = new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + TABLE_USER;
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+    @SuppressLint("Range")
+    public User getUser(String username) {
+        SQLiteDatabase db = getReadableDatabase();
+        User user = null;
+        String query = "SELECT * FROM " + USERS + " WHERE " + COLUMN_NAME + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{username});
 
         if (cursor.moveToFirst()) {
-            do {
-                User user = new User(cursor.getString(1), cursor.getString(2), cursor.getInt(0), cursor.getInt(3) == 1);
-                userList.add(user);
-            } while (cursor.moveToNext());
+            user = new User();
+            user.setName(cursor.getString(cursor.getColumnIndex(COLUMN_NAME)));
+            user.setDescription(cursor.getString(cursor.getColumnIndex(COLUMN_DESC)));
+            user.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
+            user.setFollowed(cursor.getInt(cursor.getColumnIndex(COLUMN_FOLL)) == 1);
+        }
+        cursor.close();
+        //db.close();
+        return user;
+    }
+
+//  Add a user record
+
+    public User getrUser(int user_id) {
+        SQLiteDatabase db = getReadableDatabase();
+        User user = new User("johnny", "johndoe", 3, false);
+        Cursor cursor = db.query(USERS, new String[] { COLUMN_NAME, COLUMN_DESC, COLUMN_ID, COLUMN_FOLL}, COLUMN_ID + "=?",
+                new String[] { String.valueOf(user_id) }, null, null, null, null);
+
+        if (cursor != null)
+        {
+            cursor.moveToFirst();
+            int id = cursor.getInt((int)cursor.getColumnIndex("id"));
+            String name = cursor.getString((int)cursor.getColumnIndex("name"));
+            String description = cursor.getString((int)cursor.getColumnIndex("description"));
+            boolean followed = Boolean.parseBoolean(cursor.getString((int)cursor.getColumnIndex("followed")));
+            user.setId(id);
+            user.setName(name);
+            user.setDescription(description);
+            user.setFollowed(followed);
+            cursor.close();
+        }
+//      db.close();
+        return user;
+    }
+    public ArrayList<User> getUsers() {
+
+        SQLiteDatabase db = getWritableDatabase();
+
+        ArrayList<User> userList = new ArrayList<>();
+
+        String query = "SELECT * FROM " + USERS;
+
+        Cursor cursor = db.rawQuery(query, null);
+
+
+
+        while (cursor.moveToNext()) {
+
+            int id = cursor.getInt((int)cursor.getColumnIndex("id"));
+
+            String name = cursor.getString((int)cursor.getColumnIndex("name"));
+
+            String description = cursor.getString((int)cursor.getColumnIndex("description"));
+
+            String  followed = cursor.getString((int)cursor.getColumnIndex("followed"));
+
+            User user = new User(name, description, id, Boolean.parseBoolean(followed));
+
+            userList.add(user);
+
         }
 
         cursor.close();
         return userList;
     }
 
-    public void updateUser(User user) {
-        SQLiteDatabase db = this.getWritableDatabase();
+
+
+//  UPDATE user record
+
+    public void updateUser(User user){
+
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, user.getName());
-        values.put(KEY_DESCRIPTION, user.getDescription());
-        values.put(KEY_FOLLOWED, user.isFollowed() ? 1 : 0);
-
-        db.update(TABLE_USER, values, KEY_ID + " = ?", new String[] { String.valueOf(user.getId()) });
-        db.close();
+        values.put(COLUMN_FOLL,  user.getFollowed());
+        String clause = "id=?";
+        String[] args = {String.valueOf(user.getId())};
+        db.update(USERS, values, clause, args);
     }
+    @Override
 
+    public void close() {
+        Log.i("Database Operations", "Database is closed.");
+        super.close();
+    }
 }
