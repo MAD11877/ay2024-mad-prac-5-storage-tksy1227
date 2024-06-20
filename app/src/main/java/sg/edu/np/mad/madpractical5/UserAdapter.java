@@ -1,28 +1,12 @@
 package sg.edu.np.mad.madpractical5;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
-import androidx.annotation.NonNull;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 public class UserAdapter  extends RecyclerView.Adapter<UserViewHolder> {
     private ArrayList<User> list_objects;
 
@@ -31,7 +15,7 @@ public class UserAdapter  extends RecyclerView.Adapter<UserViewHolder> {
     }
 
     public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_activity_list, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.coustomlayout, parent, false);
         UserViewHolder holder = new UserViewHolder(view);
         return holder;
     }

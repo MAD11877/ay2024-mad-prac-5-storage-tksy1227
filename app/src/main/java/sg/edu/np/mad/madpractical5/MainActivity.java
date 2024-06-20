@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -25,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        DBHandler dbHandler = new DBHandler(this, null, null, 1);
+        DatabaseHandler dbHandler = new DatabaseHandler(this, null, null, 1);
 
         //User user = new User("John Doe", "MAD Developer", 1, false);
 
@@ -39,8 +41,7 @@ public class MainActivity extends AppCompatActivity {
         tvName.setText(name);
         tvDescription.setText(description);
 
-        User user; //
-        user = dbHandler.getUser(name);
+        User user = dbHandler.getUser(name);
 
         if (user.getFollowed()){
             btnFollow.setText("Unfollow");
